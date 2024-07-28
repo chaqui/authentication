@@ -1,10 +1,14 @@
 const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const {checkUserData} = require('../middlewares/users');
 const bcrypt = require("bcrypt");
+const crypto = require('crypto');
+
 const {
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
 } = require("@aws-sdk/lib-dynamodb");
+
 const express = require("express");
 const serverless = require("serverless-http");
 
@@ -43,16 +47,20 @@ app.get("/users/:userId", async function (req, res) {
 
 app.post("/users", async function (req, res) {
   const { name, password } = req.body;
-  if (typeof userId !== "string") {
+  if (typeof password !== "string") {
     res.status(400).json({ error: '"userId" must be a string' });
   } else if (typeof name !== "string") {
     res.status(400).json({ error: '"name" must be a string' });
   }
 
+  let userId = crypto.randomBytes(20).toString('hex');
+
   const params = {
     TableName: USERS_TABLE,
     Item: {	
+      userId: userId,
       name: name,
+      password: await bcrypt.hash(password, 10),
     },
   };
 
@@ -65,11 +73,25 @@ app.post("/users", async function (req, res) {
   }
 });
 
+app.get('/users', async function (req, res) {
+  const params = {
+    TableName: USERS_TABLE,
+  };
+
+  try {
+    const { Items } = await dynamoDbClient.scan(params).promise();
+    res.json(Items);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Could not retreive users" });
+  }
+});
+
+
 app.use((req, res, next) => {
   return res.status(404).json({
     error: "Not Found",
   });
 });
-
 
 module.exports.handler = serverless(app);
