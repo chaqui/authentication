@@ -3,14 +3,15 @@ const express = require("express");
 const serverless = require("serverless-http");
 
 const users = require("./users");
+const roles = require("./roles");
 
 const app = express();
 
 app.use(express.json());
 const router = express.Router();
 router.use("/users", users);
+router.use("/roles", roles);
 app.use('/api/v1', router);
-
 
 app.use((req, res, next) => {
   return res.status(404).json({

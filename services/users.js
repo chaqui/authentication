@@ -19,6 +19,7 @@ class UserServices {
                 userId: userId,
                 name: name,
                 password: await bcrypt.hash(password, 10),
+                userRoles: [],
             },
         };
 
@@ -36,9 +37,10 @@ class UserServices {
             TableName: USERS_TABLE,
             ExpressionAttributeNames:{
                 '#name': 'name',
-                '#userId': 'userId'
+                '#userId': 'userId',
+                '#userRoles': 'userRoles'
             },
-             ProjectionExpression: '#name, #userId'
+             ProjectionExpression: '#name, #userId, #userRoles'
         };
 
         try {
@@ -72,6 +74,31 @@ class UserServices {
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: "Could not return user" });
+        }
+    }
+    
+    async addRoles(req, res) {
+        const { userId } = req.params;
+        const { roleId } = req.body;
+
+        const params = {
+            TableName: USERS_TABLE,
+            Key: {
+                userId: userId,
+            },
+            UpdateExpression: "SET userRoles = list_append(userRoles, :roleId)",
+            ExpressionAttributeValues: {
+                ":roleId": [roleId],
+            },
+            ReturnValues: "ALL_NEW",
+        };
+
+        try {
+            const response = await dynamoDb.update(params).promise();
+            res.json(response.Attributes);
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({ error: "Could not add role" });
         }
     }
 }

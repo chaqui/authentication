@@ -8,5 +8,6 @@ const service = new UserServices();
 router.get("/:userId", async function (req, res) { service.getUser(req, res); });
 router.get("/", async function (req, res) { service.getUsers(res); });
 router.post("/", checkUserData, async function (req, res) { service.postUsers(req, res); });
+router.post("/:userId/roles/", async function (req, res) { service.addRoles(req, res); });
 
 module.exports = router;

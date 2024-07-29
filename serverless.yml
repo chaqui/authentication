@@ -2,7 +2,8 @@ service: authentication
 frameworkVersion: '3'
 
 custom:
-  tableName: 'users-table-${sls:stage}'
+  tableNameUsers: 'users-table-${sls:stage}'
+  tableNameRoles: 'roles-table-${sls:stage}'
 
 provider:
   name: aws
@@ -20,8 +21,10 @@ provider:
             - dynamodb:DeleteItem
           Resource:
             - Fn::GetAtt: [ UsersTable, Arn ]
+            - Fn::GetAtt: [ RolesTable, Arn ]
   environment:
-    USERS_TABLE: ${self:custom.tableName}
+    USERS_TABLE: ${self:custom.tableNameUsers}
+    ROLES_TABLE: ${self:custom.tableNameRoles}
 
 functions:
   api:
@@ -41,4 +44,15 @@ resources:
           - AttributeName: userId
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
-        TableName: ${self:custom.tableName}
+        TableName: ${self:custom.tableNameUsers}
+    RolesTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        AttributeDefinitions:
+          - AttributeName: roleId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: roleId
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:custom.tableNameRoles}
