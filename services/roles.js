@@ -1,28 +1,18 @@
-const aws = require("aws-sdk");
-const bcrypt = require("bcrypt");
 const crypto = require('crypto');
-
-const dynamoDb = new aws.DynamoDB.DocumentClient({});
-const ROLES_TABLE = process.env.ROLES_TABLE;
 
 
 class RolesServices {
 
-    async postRoles(req, res) {
-        const { name, description } = req.body;
+    constructor(storage) {
+        this.storage = storage;
+    }
+
+    async postRoles(body, res) {
+        const { name, description } = body;
 
         const roleId = crypto.randomBytes(20).toString('hex');
-        const params = {
-            TableName: ROLES_TABLE,
-            Item: {
-                roleId: roleId,
-                name: name,
-                description: description,
-            },
-        };
-
         try {
-            await dynamoDb.put(params).promise();
+            await this.storage.addRoles(roleId, name, description);
             res.json({ roleId, name });
         } catch (error) {
             console.log(error);
@@ -32,39 +22,22 @@ class RolesServices {
     }
 
     async getRoles(res) {
-        const params = {
-            TableName: ROLES_TABLE,
-            ExpressionAttributeNames:{
-                '#name': 'name',
-                '#roleId': 'roleId'
-            },
-            ProjectionExpression: '#name, #roleId'
-        };
 
         try {
-            const response = await dynamoDb.scan(params).promise();
-            res.json(response.Items);
+            const roles = await this.storage.getRoles();
+            res.json(roles);
         } catch (error) {
-            console.log(error);
-            console.log("roles:" + error.message);
             res.status(500).json({ error: "Could not return roles", message: error.message });
         }
     }
 
-    async getRole(req, res) {
-        const params = {
-            TableName: ROLES_TABLE,
-            Key: {
-                roleId: req.params.roleId,
-            },
-        };
+    async getRole(roleId, res) {
 
         try {
-            const response = await dynamoDb.get(params).promise();
-            res.json(response.Item);
+            const rol = await this.storage.getRole(roleId);
+            res.json(rol);
         } catch (error) {
-            console.log(error);
-            console.log("roles:" + error.message);
+
             res.status(500).json({ error: "Could not return role", message: error.message });
         }
     }

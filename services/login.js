@@ -5,31 +5,29 @@ const aws = require("aws-sdk");
 const dynamoDb = new aws.DynamoDB.DocumentClient({});
 const USERS_TABLE = process.env.USERS_TABLE;
 class LoginServices {
-    
+
+    constructor(storageUser) {
+        this.storageUser = storageUser;
+    }
+
     //TODO: No funciona correctamente
-    async login(name, password) {
-        const params = {
-            TableName: USERS_TABLE,
-            KeyConditionExpression: "#name = :name",
-            ExpressionAttributeValues: {
-                ":name": name,
-            },
-            ExpressionAttributeNames: {
-                "#name": "name"
-            }
-        };
+    async login(name, password,res) {
 
         try {
-            const response = await dynamoDb.get(params).promise();
-            if (response.Item) {
-                const user = response.Item;
-                const passwordMatch = await bcrypt.compare(password, user.password);
-                if (passwordMatch) {
-                    return user;
-                }
+            const user = await this.storageUser.getByName(name);
+            if (user) {
+                return user;
+                //const passwordMatch = await bcrypt.compare(password, user.password);
+                //if (passwordMatch) {
+                //    return user;
+                //}
+            }
+            else{
+                res.status(401).json({ error: "Unauthorized" });
             }
         } catch (error) {
             console.log(error);
+
         }
         return null;
     }

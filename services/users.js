@@ -1,4 +1,5 @@
-
+const crypto = require('crypto');
+const bcrypt = require("bcrypt");
 
 
 class UserServices {
@@ -15,8 +16,10 @@ class UserServices {
      */
     async postUsers(body, res) {
         const { name, password } = body;
-        const userId = crypto.randomBytes(20).toString('hex');
+
         try {
+            password = await bcrypt.hash(password, 10);
+            const userId = crypto.randomBytes(20).toString('hex');
             const userAdd = await this.storage.addUser(name, password, userId);
             res.json(userAdd);
         } catch (error) {
@@ -32,6 +35,7 @@ class UserServices {
     async getUsers(res) {
 
         try {
+
             const users = await this.storage.getUsers();
             res.json(users);
         } catch (error) {
@@ -47,6 +51,7 @@ class UserServices {
     async getUser(userId, res) {
 
         try {
+
             const user = await this.storage.getUser(userId);
             if (user) {
                 const { userId, name, userRoles } = Item;

@@ -1,18 +1,12 @@
 const express = require('express');
-const router = express.Router();
-
 const LoginServices = require('../services/login');
+const UserStore = require('../store/users');
+const checkLogin = require('../middlewares/login');
 
-const service = new LoginServices();
+const store = new UserStore();
+const service = new LoginServices(store);
 
-router.post("/", function (req, res) {
-    service.login(req.body.name, req.body.password).then(user => {
-        if (user) {
-            res.json({ userId: user.userId, name: user.name, userRoles: user.userRoles });
-        } else {
-            res.status(401).json({ error: "Unauthorized" });
-        }
-    });
-});
+const router = express.Router();
+router.post("/",checkLogin, function (req, res) { service.login(req.body.name, req.body.password, res); });
 
 module.exports = router;
