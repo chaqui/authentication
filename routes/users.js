@@ -2,8 +2,10 @@ const express = require('express');
 const router = express.Router();
 const { checkUserData, checkAddRol } = require('../middlewares/users');
 const UserServices = require('../services/users');
+const UserStore = require('../store/users');
 
-const service = new UserServices();
+const store = new UserStore();
+const service = new UserServices(store);
 
 router.get("/:userId", async function (req, res) { service.getUser(req.params.userId, res); });
 router.get("/", async function (req, res) { service.getUsers(res); });

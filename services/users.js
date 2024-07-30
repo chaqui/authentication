@@ -1,12 +1,11 @@
-const aws = require("aws-sdk");
-const bcrypt = require("bcrypt");
-const crypto = require('crypto');
 
-const dynamoDb = new aws.DynamoDB.DocumentClient({});
-const USERS_TABLE = process.env.USERS_TABLE;
 
 
 class UserServices {
+
+    constructor(storage) {
+        this.storage = storage;
+    }
 
     /**
      * Function for create a new user
@@ -16,22 +15,10 @@ class UserServices {
      */
     async postUsers(body, res) {
         const { name, password } = body;
-
-
         const userId = crypto.randomBytes(20).toString('hex');
-        const params = {
-            TableName: USERS_TABLE,
-            Item: {
-                userId: userId,
-                name: name,
-                password: await bcrypt.hash(password, 10),
-                userRoles: [],
-            },
-        };
-
         try {
-            await dynamoDb.put(params).promise();
-            res.json({ userId, name });
+            const userAdd = await this.storage.addUser(name, password, userId);
+            res.json(userAdd);
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: "Could not create user" });
@@ -43,22 +30,11 @@ class UserServices {
      * @param res Response object for the GET /users endpoint
      */
     async getUsers(res) {
-        const params = {
-            TableName: USERS_TABLE,
-            ExpressionAttributeNames: {
-                '#name': 'name',
-                '#userId': 'userId',
-                '#userRoles': 'userRoles'
-            },
-            ProjectionExpression: '#name, #userId, #userRoles'
-        };
 
         try {
-            const response = await dynamoDb.scan(params).promise();
-            res.json(response.Items);
+            const users = await this.storage.getUsers();
+            res.json(users);
         } catch (error) {
-            console.log(error);
-            console.log("users:" + error.message);
             res.status(500).json({ error: "Could not return users", message: error.message });
         }
     }
@@ -69,18 +45,12 @@ class UserServices {
      * @param {Response} res  response object for the GET /users/:userId endpoint
      */
     async getUser(userId, res) {
-        const params = {
-            TableName: USERS_TABLE,
-            Key: {
-                userId: userId,
-            },
-        };
 
         try {
-            const { Item } = await dynamoDb.get(params).promise();
-            if (Item) {
-                const { userId, name } = Item;
-                res.json({ userId, name });
+            const user = await this.storage.getUser(userId);
+            if (user) {
+                const { userId, name, userRoles } = Item;
+                res.json({ userId, name, userRoles });
             } else {
                 res
                     .status(404)
@@ -100,22 +70,15 @@ class UserServices {
      */
     async addRoles(userId, roleId, res) {
 
-        const params = {
-            TableName: USERS_TABLE,
-            Key: {
-                userId: userId,
-            },
-            UpdateExpression: "SET #userRoles = list_append(#userRoles, :roleId)",
-            ExpressionAttributeValues: {
-                ":roleId": [roleId],
-            },
-            ExpressionAttributeNames: {
-                "#userRoles": "userRoles"
-            }
-        };
-
+        const user = await this.storage.getUser(userId);
+        if (!user) {
+            res
+                .status(404)
+                .json({ error: 'Could not find user with provided "userId"' });
+            return;
+        }
         try {
-            const response = await dynamoDb.update(params).promise();
+            await this.storage.addRoles(userId, roleId);
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: "Could not add role" });

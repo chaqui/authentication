@@ -4,6 +4,7 @@ const serverless = require("serverless-http");
 
 const users = require("./users");
 const roles = require("./roles");
+const login = require("./login");
 
 const app = express();
 
@@ -11,6 +12,7 @@ app.use(express.json());
 const router = express.Router();
 router.use("/users", users);
 router.use("/roles", roles);
+router.use("/login", login);
 
 app.use('/api/v1', router);
 
