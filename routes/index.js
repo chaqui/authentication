@@ -11,6 +11,7 @@ app.use(express.json());
 const router = express.Router();
 router.use("/users", users);
 router.use("/roles", roles);
+
 app.use('/api/v1', router);
 
 app.use((req, res, next) => {

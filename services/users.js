@@ -8,8 +8,14 @@ const USERS_TABLE = process.env.USERS_TABLE;
 
 class UserServices {
 
-    async postUsers(req, res) {
-        const { name, password } = req.body;
+    /**
+     * Function for create a new user
+     * @param body Request body for the POST /users endpoint
+     * @param res Response object for the POST /users endpoint
+     *
+     */
+    async postUsers(body, res) {
+        const { name, password } = body;
 
 
         const userId = crypto.randomBytes(20).toString('hex');
@@ -32,15 +38,19 @@ class UserServices {
         }
     }
 
+    /**
+     * Function for get users
+     * @param res Response object for the GET /users endpoint
+     */
     async getUsers(res) {
         const params = {
             TableName: USERS_TABLE,
-            ExpressionAttributeNames:{
+            ExpressionAttributeNames: {
                 '#name': 'name',
                 '#userId': 'userId',
                 '#userRoles': 'userRoles'
             },
-             ProjectionExpression: '#name, #userId, #userRoles'
+            ProjectionExpression: '#name, #userId, #userRoles'
         };
 
         try {
@@ -53,11 +63,16 @@ class UserServices {
         }
     }
 
-    async getUser(req, res) {
+    /**
+     * Function to return user by userId
+     * @param {String} userId  userId to return
+     * @param {Response} res  response object for the GET /users/:userId endpoint
+     */
+    async getUser(userId, res) {
         const params = {
             TableName: USERS_TABLE,
             Key: {
-                userId: req.params.userId,
+                userId: userId,
             },
         };
 
@@ -76,26 +91,31 @@ class UserServices {
             res.status(500).json({ error: "Could not return user" });
         }
     }
-    
-    async addRoles(req, res) {
-        const { userId } = req.params;
-        const { roleId } = req.body;
+
+    /**
+     * Function to add roles to a user
+     * @param {String} userId  userId to add role
+     * @param {String} roleId  roleId to add role
+     * @param {Response} res  Response object for the POST /users/:userId/roles endpoint
+     */
+    async addRoles(userId, roleId, res) {
 
         const params = {
             TableName: USERS_TABLE,
             Key: {
                 userId: userId,
             },
-            UpdateExpression: "SET userRoles = list_append(userRoles, :roleId)",
+            UpdateExpression: "SET #userRoles = list_append(#userRoles, :roleId)",
             ExpressionAttributeValues: {
                 ":roleId": [roleId],
             },
-            ReturnValues: "ALL_NEW",
+            ExpressionAttributeNames: {
+                "#userRoles": "userRoles"
+            }
         };
 
         try {
             const response = await dynamoDb.update(params).promise();
-            res.json(response.Attributes);
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: "Could not add role" });
