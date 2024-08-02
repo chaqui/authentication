@@ -1,25 +1,33 @@
-const crypto = require('crypto');
-
+const crypto = require("crypto");
 
 class RolesServices {
+  constructor(storage) {
+    this.storage = storage;
+  }
 
-    constructor(storage) {
-        this.storage = storage;
+  async postRoles(body, res) {
+    const { name, description } = body;
+
+    const roleId = crypto.randomBytes(20).toString("hex");
+    try {
+      await this.storage.addRoles(roleId, name, description);
+      res.json({ roleId, name });
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({ error: "Could not create role" });
     }
+  }
 
-    async postRoles(body, res) {
-        const { name, description } = body;
-
-        const roleId = crypto.randomBytes(20).toString('hex');
-        try {
-            await this.storage.addRoles(roleId, name, description);
-            res.json({ roleId, name });
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({ error: "Could not create role" });
-        }
-
+  async getRoles(res) {
+    try {
+      const roles = await this.storage.getRoles();
+      res.json(roles);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Could not return roles", message: error.message });
     }
+  }
 
     async getRoles(res) {
 
@@ -41,6 +49,7 @@ class RolesServices {
             res.status(500).json({ error: "Could not return role", message: error.message });
         }
     }
+  }
 }
 
 module.exports = RolesServices;

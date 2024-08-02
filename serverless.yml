@@ -1,9 +1,9 @@
 service: authentication
-frameworkVersion: '3'
+frameworkVersion: "3"
 
 custom:
-  tableNameUsers: 'users-table-${sls:stage}'
-  tableNameRoles: 'roles-table-${sls:stage}'
+  tableNameUsers: "users-table-${sls:stage}"
+  tableNameRoles: "roles-table-${sls:stage}"
 
 provider:
   name: aws
@@ -20,8 +20,8 @@ provider:
             - dynamodb:UpdateItem
             - dynamodb:DeleteItem
           Resource:
-            - Fn::GetAtt: [ UsersTable, Arn ]
-            - Fn::GetAtt: [ RolesTable, Arn ]
+            - Fn::GetAtt: [UsersTable, Arn]
+            - Fn::GetAtt: [RolesTable, Arn]
   environment:
     USERS_TABLE: ${self:custom.tableNameUsers}
     ROLES_TABLE: ${self:custom.tableNameRoles}
@@ -31,7 +31,7 @@ functions:
   api:
     handler: routes/index.handler
     events:
-      - httpApi: '*'
+      - httpApi: "*"
 
 resources:
   Resources:
