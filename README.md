@@ -18,7 +18,7 @@ This template demonstrates how to develop and deploy a simple Node Express API s
 
 ## Anatomy of the template
 
-This template configures a single function, `api`, which is responsible for handling all incoming requests thanks to the `httpApi` event. To learn more about `httpApi` event configuration options, please refer to [httpApi event docs](https://www.serverless.com/framework/docs/providers/aws/events/http-api/). As the event is configured in a way to accept all incoming requests, `express` framework is responsible for routing and handling requests internally. Implementation takes advantage of `serverless-http` package, which allows you to wrap existing `express` applications. To learn more about `serverless-http`, please refer to corresponding [GitHub repository](https://github.com/dougmoscrop/serverless-http). Additionally, it also handles provisioning of a DynamoDB database that is used for storing data about users. The `express` application exposes two endpoints, `POST /users` and `GET /user/{userId}`, which allow to create and retrieve users.
+This template configures a single function, `api`, which is responsible for handling all incoming requests thanks to the `httpApi` event. To learn more about `httpApi` event configuration options, please refer to [httpApi event docs](https://www.serverless.com/framework/docs/providers/aws/events/http-api/). As the event is configured in a way to accept all incoming requests, `express` framework is responsible for routing and handling requests internally. Implementation takes advantage of `serverless-http` package, which allows you to wrap existing `express` applications. To learn more about `serverless-http`, please refer to corresponding [GitHub repository](https://github.com/dougmoscrop/serverless-http). Additionally, it also handles provisioning of a DynamoDB database that is used for storing data about users. The `express` application exposes two endpoints, `POST /users` and `GET /user/{name}`, which allow to create and retrieve users.
 
 ## Usage
 
@@ -55,31 +55,31 @@ _Note_: In current form, after deployment, your API is public and can be invoked
 After successful deployment, you can create a new user by calling the corresponding endpoint:
 
 ```bash
-curl --request POST 'https://xxxxxx.execute-api.us-east-1.amazonaws.com/users' --header 'Content-Type: application/json' --data-raw '{"name": "John", "userId": "someUserId"}'
+curl --request POST 'https://xxxxxx.execute-api.us-east-1.amazonaws.com/users' --header 'Content-Type: application/json' --data-raw '{"name": "John", "userRoles": "listRoles"}'
 ```
 
 Which should result in the following response:
 
 ```bash
-{"userId":"someUserId","name":"John"}
+{"name":"John","userRoles":"listRoles"}
 ```
 
-You can later retrieve the user by `userId` by calling the following endpoint:
+You can later retrieve the user by `name` by calling the following endpoint:
 
 ```bash
-curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/users/someUserId
+curl https://xxxxxxx.execute-api.us-east-1.amazonaws.com/users/someUserName
 ```
 
 Which should result in the following response:
 
 ```bash
-{"userId":"someUserId","name":"John"}
+{"name":"John","userRoles":"listRoles"}
 ```
 
 If you try to retrieve user that does not exist, you should receive the following response:
 
 ```bash
-{"error":"Could not find user with provided \"userId\""}
+{"error":"Could not find user with provided \"name\""}
 ```
 
 ### Local development

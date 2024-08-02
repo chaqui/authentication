@@ -43,9 +43,9 @@ class UserServices {
     }
 
     /**
-     * Function to return user by userId
-     * @param {String} name  userId to return
-     * @param {Response} res  response object for the GET /users/:userId endpoint
+     * Function to return user by name
+     * @param {String} name  User's name to return
+     * @param {Response} res  response object for the GET /users/:name endpoint
      */
     async getUser(name, res) {
 
@@ -57,7 +57,7 @@ class UserServices {
                 res.json({  name, userRoles });
             } else {
                 res.status(404)
-                    .json({ error: 'Could not find user with provided "userId"' });
+                    .json({ error: 'Could not find user with provided "name"' });
             }
         } catch (error) {
             console.log(error);
@@ -67,25 +67,42 @@ class UserServices {
 
     /**
      * Function to add roles to a user
-     * @param {String} userId  userId to add role
+     * @param {String} name  User's name to add role
      * @param {String} roleId  roleId to add role
-     * @param {Response} res  Response object for the POST /users/:userId/roles endpoint
+     * @param {Response} res  Response object for the POST /users/:name/roles endpoint
      */
     async addRoles(name, roleId, res) {
 
-        const user = await this.storage.getUser(userId);
-        if (!user) {
-            res
-                .status(404)
-                .json({ error: 'Could not find user with provided "userId"' });
+        if(!this.validateUser(name, roleId, res)){
             return;
         }
+
         try {
             await this.storage.addRole(name, roleId);
+            res.json({ name, roleId });
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: "Could not add role" });
         }
+    }
+
+    async validateUser(name, roleId, res) {
+
+        const user = await this.storage.getUser(name);
+        if (!user) {
+            res
+                .status(404)
+                .json({ error: 'Could not find user with provided "name"' });
+            return false;
+        }
+        if(user.userRoles){
+            if(user.userRoles.includes(roleId)){
+                res.status(400).json({ error: 'Role already exists for this user' });
+                return false;
+            }
+        }
+        return true;
+
     }
 }
 

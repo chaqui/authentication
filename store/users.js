@@ -11,7 +11,6 @@ class UsersStore {
      * Function to store the users in the database DynamoDB
      * @param {String} name Name of the user
      * @param {String} password Password of the user encrypted, in this function not be encrypted
-     * @param {String} userId id of the user
      * @returns 
      */
     async addUser(name, password) {
