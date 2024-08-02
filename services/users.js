@@ -86,6 +86,13 @@ class UserServices {
         }
     }
 
+    /**
+     * Function to validate user
+     * @param {String} name  User's name to validate
+     * @param {String} roleId  roleId to validate
+     * @param {Response} res  Response object for the POST /users/:name/roles endpoint
+     * @returns {Boolean} true if user is valid, false otherwise
+     */
     async validateUser(name, roleId, res) {
 
         const user = await this.storage.getUser(name);
