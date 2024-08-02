@@ -3,6 +3,9 @@ const jwt = require("jsonwebtoken");
 
 const SECRET_KET = process.env.SECRET_KET;
 class LoginServices {
+  constructor(storageUser) {
+    this.storageUser = storageUser;
+  }
 
     constructor(storageUser) {
         this.storageUser = storageUser;
