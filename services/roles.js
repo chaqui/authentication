@@ -37,7 +37,7 @@ class RolesServices {
             const rol = await this.storage.getRole(roleId);
             res.json(rol);
         } catch (error) {
-
+            console.log(error);
             res.status(500).json({ error: "Could not return role", message: error.message });
         }
     }

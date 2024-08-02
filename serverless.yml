@@ -25,6 +25,7 @@ provider:
   environment:
     USERS_TABLE: ${self:custom.tableNameUsers}
     ROLES_TABLE: ${self:custom.tableNameRoles}
+    SECRET_KET: 
 
 functions:
   api:
@@ -38,10 +39,10 @@ resources:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
-          - AttributeName: userId
+          - AttributeName: name
             AttributeType: S
         KeySchema:
-          - AttributeName: userId
+          - AttributeName: name
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:custom.tableNameUsers}

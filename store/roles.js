@@ -54,7 +54,7 @@ class RolesStore {
                 roleId: roleId,
             },
         };
-        response = await dynamoDb.get(params).promise();
+        const response = await dynamoDb.get(params).promise();
         return response.Item;
     }
 }

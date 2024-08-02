@@ -1,4 +1,3 @@
-const crypto = require('crypto');
 const bcrypt = require("bcrypt");
 
 
@@ -15,12 +14,12 @@ class UserServices {
      *
      */
     async postUsers(body, res) {
-        const { name, password } = body;
+        let { password } = body;	
+        const { name } = body;
 
         try {
             password = await bcrypt.hash(password, 10);
-            const userId = crypto.randomBytes(20).toString('hex');
-            const userAdd = await this.storage.addUser(name, password, userId);
+            const userAdd = await this.storage.addUser(name, password);
             res.json(userAdd);
         } catch (error) {
             console.log(error);
@@ -45,20 +44,19 @@ class UserServices {
 
     /**
      * Function to return user by userId
-     * @param {String} userId  userId to return
+     * @param {String} name  userId to return
      * @param {Response} res  response object for the GET /users/:userId endpoint
      */
-    async getUser(userId, res) {
+    async getUser(name, res) {
 
         try {
 
-            const user = await this.storage.getUser(userId);
+            const user = await this.storage.getUser(name);
             if (user) {
-                const { userId, name, userRoles } = Item;
-                res.json({ userId, name, userRoles });
+                const {name, userRoles } = user;
+                res.json({  name, userRoles });
             } else {
-                res
-                    .status(404)
+                res.status(404)
                     .json({ error: 'Could not find user with provided "userId"' });
             }
         } catch (error) {
@@ -73,7 +71,7 @@ class UserServices {
      * @param {String} roleId  roleId to add role
      * @param {Response} res  Response object for the POST /users/:userId/roles endpoint
      */
-    async addRoles(userId, roleId, res) {
+    async addRoles(name, roleId, res) {
 
         const user = await this.storage.getUser(userId);
         if (!user) {
@@ -83,7 +81,7 @@ class UserServices {
             return;
         }
         try {
-            await this.storage.addRoles(userId, roleId);
+            await this.storage.addRole(name, roleId);
         } catch (error) {
             console.log(error);
             res.status(500).json({ error: "Could not add role" });
