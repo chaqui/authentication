@@ -1,5 +1,5 @@
 service: authentication
-frameworkVersion: "3"
+frameworkVersion: ^4.1.0
 
 custom:
   tableNameUsers: "users-table-${sls:stage}"
@@ -25,7 +25,7 @@ provider:
   environment:
     USERS_TABLE: ${self:custom.tableNameUsers}
     ROLES_TABLE: ${self:custom.tableNameRoles}
-    SECRET_KET: 
+    SECRET_KET:
 
 functions:
   api:
