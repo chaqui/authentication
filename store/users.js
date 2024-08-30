@@ -51,7 +51,7 @@ class UsersStore {
      * @param {String} name Identifier for the user to retrieve
      * @returns Object with the user information
      */
-    async getUser(name) {
+    async getUserByName(name) {
         const params = {
             TableName: USERS_TABLE,
             Key: {
@@ -64,16 +64,33 @@ class UsersStore {
     }
 
     /**
+     * Function to get the user from the database DynamoDB
+     * @param {String} userId Identifier for the user to retrieve
+     * @returns Object with the user information
+     */
+    async getUserById(userId) {
+        const params = {
+            TableName: USERS_TABLE,
+            Key: {
+                userId: userId,
+            },
+        };
+        const { Item } = await dynamoDb.get(params).promise();
+        return Item;
+
+    }
+
+    /**
      * Function to add a role to the user in the database DynamoDB
      * @param {String} userId Identifier for the user to retrieve
      * @param {String} roleId Identifier for the role to add
      */
-    async addRole(name, roleId) {
+    async addRole(userId, roleId) {
 
         const params = {
             TableName: USERS_TABLE,
             Key: {
-                name: name,
+                userId: userId,
             },
             UpdateExpression: "SET #userRoles = list_append(#userRoles, :roleId)",
             ExpressionAttributeValues: {
