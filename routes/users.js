@@ -1,15 +1,23 @@
 const express = require("express");
 const router = express.Router();
-const { checkUserData, checkAddRol } = require("../middlewares/users");
+const {
+  checkUserData,
+  checkUserName,
+  checkUserId,
+  checkAddRol,
+} = require("../middlewares/users");
 const UserServices = require("../services/users");
 const UserStore = require("../store/users");
 
 const store = new UserStore();
 const service = new UserServices(store);
 
-router.get("/:name", async function (req, res) {
+router.get("/:name", checkUserName, async function (req, res) {
   service.getUserByName(req.params.name, res);
 });
+// router.get("/:userId", checkUserId, async function (req, res) {
+//   service.getUserById(req.params.userId, res);
+// });
 router.get("/", async function (req, res) {
   service.getUsers(res);
 });

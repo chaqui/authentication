@@ -9,16 +9,16 @@ class UsersStore {
 
     /**
      * Function to store the users in the database DynamoDB
+     * @param {String} userId id of the user
      * @param {String} name Name of the user
      * @param {String} password Password of the user encrypted, in this function not be encrypted
-     * @param {String} userId id of the user
      * @returns 
      */
-    async addUser(name, password) {
-
+    async addUser({userId, name, password}) {
         const params = {
             TableName: USERS_TABLE,
             Item: {
+                userId: userId,
                 name: name,
                 password: password,
                 userRoles: [],
@@ -27,7 +27,6 @@ class UsersStore {
 
         await dynamoDb.put(params).promise();
         return { name };
-
     }
 
     /**
@@ -37,10 +36,11 @@ class UsersStore {
         const params = {
             TableName: USERS_TABLE,
             ExpressionAttributeNames: {
+                '#userId': 'userId',
                 '#name': 'name',
                 '#userRoles': 'userRoles'
             },
-            ProjectionExpression: '#name, #userRoles'
+            ProjectionExpression: '#userId, #name, #userRoles'
         };
         const response = await dynamoDb.scan(params).promise();
         return response.Items;

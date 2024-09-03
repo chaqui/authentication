@@ -1,4 +1,5 @@
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 class UserServices {
   constructor(storage) {
@@ -31,12 +32,17 @@ class UserServices {
     const { name, password } = body;
 
     try {
-      password = await bcrypt.hash(password, 10);
+      const passwordEncrypted = await bcrypt.hash(password, 10);
       const userId = crypto.randomBytes(20).toString("hex");
-      const userAdd = await this.storage.addUser(name, password, userId);
+      const newUser = {
+        userId: userId,
+        name: name,
+        password: passwordEncrypted,
+      };
+      const userAdd = await this.storage.addUser(newUser);
+
       res.json(userAdd);
     } catch (error) {
-      console.log(error);
       res.status(500).json({ error: "Could not create user" });
     }
   }
@@ -48,7 +54,7 @@ class UserServices {
    */
   async getUserById(userId, res) {
     try {
-      const user = await this.storage.getUser(userId);
+      const user = await this.storage.getUserById(userId);
       if (user) {
         const { userId, name, userRoles } = user;
         res.json({ userId, name, userRoles });
@@ -58,7 +64,6 @@ class UserServices {
           .json({ error: 'Could not find user with provided "userId"' });
       }
     } catch (error) {
-      console.log(error);
       res.status(500).json({ error: "Could not return user" });
     }
   }
@@ -77,7 +82,7 @@ class UserServices {
       } else {
         res
           .status(404)
-          .json({ error: 'Could not find user with provided "userId"' });
+          .json({ error: 'Could not find user with provided "name"' });
       }
     } catch (error) {
       console.log(error);
