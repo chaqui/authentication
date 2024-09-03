@@ -7,11 +7,17 @@ class RolesServices {
 
   async postRoles(body, res) {
     const { name, description } = body;
+    const idGenerated = crypto.randomBytes(20).toString("hex");
 
-    const roleId = crypto.randomBytes(20).toString("hex");
     try {
-      await this.storage.addRoles(roleId, name, description);
-      res.json({ roleId, name });
+      const newRole = {
+        roleId: idGenerated,
+        name: name,
+        description: description,
+      };
+
+      const roleAdded = await this.storage.addRole(newRole);
+      res.json(roleAdded);
     } catch (error) {
       res.status(500).json({ error: "Could not create role" });
     }

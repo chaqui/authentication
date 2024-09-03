@@ -13,7 +13,7 @@ class RolesStore {
      * @param {String} name Name of the role
      * @param {String} description Description of the role
      */
-    async addRoles(roleId, name, description) {
+    async addRole({roleId, name, description}) {
         const params = {
             TableName: ROLES_TABLE,
             Item: {
@@ -23,6 +23,7 @@ class RolesStore {
             },
         };
         await dynamoDb.put(params).promise();
+        return { roleId, name };
     }
 
     /**
@@ -32,10 +33,11 @@ class RolesStore {
         const params = {
             TableName: ROLES_TABLE,
             ExpressionAttributeNames: {
+                '#roleId': 'roleId',
                 '#name': 'name',
-                '#roleId': 'roleId'
+                '#description': 'description'
             },
-            ProjectionExpression: '#name, #roleId'
+            ProjectionExpression: '#roleId, #name, #description'
         };
         const response = await dynamoDb.scan(params).promise();
         return response.Items;
