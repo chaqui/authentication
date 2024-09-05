@@ -121,7 +121,6 @@ class UsersStore {
             }
         };
         const response = await dynamoDb.scan(params).promise();
-        console.log(response);
         return response.Items;
     };
 

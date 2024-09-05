@@ -85,7 +85,6 @@ class UserServices {
           .json({ error: 'Could not find user with provided "name"' });
       }
     } catch (error) {
-      console.log(error);
       res.status(500).json({ error: "Could not return user" });
     }
   }
@@ -107,7 +106,6 @@ class UserServices {
     try {
       await this.storage.addRole(userId, roleId);
     } catch (error) {
-      console.log(error);
       res.status(500).json({ error: "Could not add role" });
     }
   }

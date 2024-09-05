@@ -24,15 +24,6 @@ function checkUserName(req, res, next) {
   }
 }
 
-function checkUserId(req, res, next) {
-  const { userId } = req.params;
-  if (!userId) {
-    res.status(400).json({ error: 'Missing required fields: "name"' });
-  } else {
-    next();
-  }
-}
-
 function checkAddRol(req, res, next) {
   const { roleId } = req.body;
   const { userId } = req.params;
@@ -52,6 +43,5 @@ function checkAddRol(req, res, next) {
 module.exports = {
   checkUserData,
   checkUserName,
-  checkUserId,
   checkAddRol,
 };

@@ -3,7 +3,6 @@ const router = express.Router();
 const {
   checkUserData,
   checkUserName,
-  checkUserId,
   checkAddRol,
 } = require("../middlewares/users");
 const UserServices = require("../services/users");
@@ -15,9 +14,6 @@ const service = new UserServices(store);
 router.get("/:name", checkUserName, async function (req, res) {
   service.getUserByName(req.params.name, res);
 });
-// router.get("/:userId", checkUserId, async function (req, res) {
-//   service.getUserById(req.params.userId, res);
-// });
 router.get("/", async function (req, res) {
   service.getUsers(res);
 });

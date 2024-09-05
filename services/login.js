@@ -17,9 +17,7 @@ class LoginServices {
    */
   async login(name, password, res) {
     try {
-      console.log("login");
       const user = await this.storageUser.getUserByName(name);
-      console.log(user);
       if (user) {
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (passwordMatch) {
@@ -29,10 +27,8 @@ class LoginServices {
         res.status(401).json({ error: "Unauthorized" });
       }
     } catch (error) {
-      console.log(error);
       res.status(500).json({ error: "Could not login" });
     }
-    return null;
   }
 
   /**
