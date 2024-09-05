@@ -1,4 +1,4 @@
-function validateRol(req, res, next) {
+function validateRole(req, res, next) {
   const { name, description } = req.body;
   if (!name || !description) {
     res
@@ -13,4 +13,13 @@ function validateRol(req, res, next) {
   }
 }
 
-module.exports = validateRol;
+function validateRoleId(req, res, next) {
+  const { roleId } = req.params;
+  if (!roleId) {
+    res.status(400).json({ error: 'Missing required fields: "rolId"' });
+  } else {
+    next();
+  }
+}
+
+module.exports = { validateRole, validateRoleId };

@@ -7,13 +7,18 @@ class RolesServices {
 
   async postRoles(body, res) {
     const { name, description } = body;
+    const idGenerated = crypto.randomBytes(20).toString("hex");
 
-    const roleId = crypto.randomBytes(20).toString("hex");
     try {
-      await this.storage.addRoles(roleId, name, description);
-      res.json({ roleId, name });
+      const newRole = {
+        roleId: idGenerated,
+        name: name,
+        description: description,
+      };
+
+      const roleAdded = await this.storage.addRole(newRole);
+      res.json(roleAdded);
     } catch (error) {
-      console.log(error);
       res.status(500).json({ error: "Could not create role" });
     }
   }
@@ -29,25 +34,14 @@ class RolesServices {
     }
   }
 
-    async getRoles(res) {
-
-        try {
-            const roles = await this.storage.getRoles();
-            res.json(roles);
-        } catch (error) {
-            res.status(500).json({ error: "Could not return roles", message: error.message });
-        }
-    }
-
-    async getRole(roleId, res) {
-
-        try {
-            const rol = await this.storage.getRole(roleId);
-            res.json(rol);
-        } catch (error) {
-            console.log(error);
-            res.status(500).json({ error: "Could not return role", message: error.message });
-        }
+  async getRole(roleId, res) {
+    try {
+      const rol = await this.storage.getRole(roleId);
+      res.json(rol);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ error: "Could not return role", message: error.message });
     }
   }
 }
