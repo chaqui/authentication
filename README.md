@@ -11,9 +11,9 @@ authorName: 'Serverless, inc.'
 authorAvatar: 'https://avatars1.githubusercontent.com/u/13742415?s=200&v=4'
 -->
 
-# Serverless Framework Node Express API on AWS
+# Authentication with Serverless
 
-This template demonstrates how to develop and deploy a simple Node Express API service, backed by DynamoDB database, running on AWS Lambda using the traditional Serverless Framework.
+This project
 
 ## Anatomy of the template
 
