@@ -11,14 +11,29 @@ const UserStore = require("../store/users");
 const store = new UserStore();
 const service = new UserServices(store);
 
+/**
+ * Function to return user by name
+ * @param req Request object for the GET /users/:name endpoint
+ * @param res Response object for the GET /users/:name endpoint
+ */
 router.get("/:name", checkUserName, async function (req, res) {
-  service.getUserByName(req.params.name, res);
+  const user = await service.getUserByName(req.params.name);
+  res.json(user);
 });
+
+/**
+ * Function to return all users
+ * @param req Request object for the GET /users endpoint
+ * @param res Response object for the GET /users endpoint
+ */
 router.get("/", async function (req, res) {
-  service.getUsers(res);
+  const users = await service.getUsers();
+  res.json(users);
 });
+
 router.post("/", checkUserData, async function (req, res) {
-  service.postUsers(req.body, res);
+  const userAdd = await service.postUsers(req.body);
+  res.json(userAdd);
 });
 router.post("/:name/roles/", checkAddRol, async function (req, res) {
   service.addRoles(req.body.userId, req.body.roleId, res);

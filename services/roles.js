@@ -1,48 +1,48 @@
 const crypto = require("crypto");
-
+const boom = require("@hapi/boom");
 class RolesServices {
   constructor(storage) {
     this.storage = storage;
   }
 
-  async postRoles(body, res) {
+  /**
+   * Function to create a new role
+   * @param {Object} body information to create a new role
+   * @returns {Object} role created
+   */
+  async postRoles(body) {
     const { name, description } = body;
     const idGenerated = crypto.randomBytes(20).toString("hex");
+    const newRole = {
+      roleId: idGenerated,
+      name: name,
+      description: description,
+    };
 
-    try {
-      const newRole = {
-        roleId: idGenerated,
-        name: name,
-        description: description,
-      };
-
-      const roleAdded = await this.storage.addRole(newRole);
-      res.json(roleAdded);
-    } catch (error) {
-      res.status(500).json({ error: "Could not create role" });
-    }
+    const roleAdded = await this.storage.addRole(newRole);
+    return roleAdded;
   }
 
-  async getRoles(res) {
-    try {
-      const roles = await this.storage.getRoles();
-      res.json(roles);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ error: "Could not return roles", message: error.message });
-    }
+  /**
+   * Function to get all roles
+   * @returns {Array} roles
+   */
+  async getRoles() {
+    const roles = await this.storage.getRoles();
+    return roles;
   }
 
-  async getRole(roleId, res) {
-    try {
-      const rol = await this.storage.getRole(roleId);
-      res.json(rol);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ error: "Could not return role", message: error.message });
+  /**
+   * Function to get role by roleId
+   * @param {String} roleId  roleId to return
+   * @returns {Object} role with the roleId
+   */
+  async getRole(roleId) {
+    const rol = await this.storage.getRole(roleId);
+    if (rol) {
+      return rol;
     }
+    throw boom.notFound('Could not find role with provided "roleId"');
   }
 }
 

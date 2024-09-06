@@ -1,6 +1,7 @@
 service: authentication
 frameworkVersion: ^4.1.0
-
+plugins:
+  - serverless-middleware
 custom:
   tableNameUsers: "users-table-${sls:stage}"
   tableNameRoles: "roles-table-${sls:stage}"
@@ -29,10 +30,12 @@ provider:
 
 functions:
   api:
-    handler: routes/index.handler
+    handler: index.handler
     events:
       - httpApi: "*"
-
+    middleware:
+      pos:
+        - catch: middlewares/handler.handlerError
 resources:
   Resources:
     UsersTable:

@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const boom = require("@hapi/boom");
 
 const SECRET_KET = process.env.SECRET_KET;
 class LoginServices {
@@ -15,19 +16,15 @@ class LoginServices {
    * @param {Object} res Response object
    * @returns
    */
-  async login(name, password, res) {
-    try {
-      const user = await this.storageUser.getUserByName(name);
-      if (user) {
-        const passwordMatch = await bcrypt.compare(password, user.password);
-        if (passwordMatch) {
-          res.json({ token: this.generateToken(user) });
-        }
-      } else {
-        res.status(401).json({ error: "Unauthorized" });
-      }
-    } catch (error) {
-      res.status(500).json({ error: "Could not login" });
+  async login(name, password) {
+    const user = await this.storageUser.getUserByName(name);
+    if (!user) {
+      throw boom.notFound('Could not find user with provided "name"');
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (passwordMatch) {
+      return { token: this.generateToken(user) };
     }
   }
 
@@ -49,14 +46,14 @@ class LoginServices {
    * @param {String} token Token to validate
    * @param {Object} res Object response
    */
-  async validateToken(token, res) {
+  async validateToken(token) {
     token = token.split(" ")[1];
     try {
       const user = jwt.verify(token, SECRET_KET);
       let { name, userRoles } = user;
-      res.json({ name, userRoles });
+      return { name, userRoles };
     } catch (error) {
-      res.status(401).json({ error: "Unauthorized" });
+      throw boom.unauthorized("Invalid token");
     }
   }
 }

@@ -26,7 +26,7 @@ class UsersStore {
         };
 
         await dynamoDb.put(params).promise();
-        return { name };
+        return { name, userId };
     }
 
     /**
