@@ -1,7 +1,9 @@
 const express = require("express");
+
+const RolesStore = require("../store/roles");
 const RoleServices = require("../services/roles");
 const { validateRole, validateRoleId } = require("../middlewares/roles.js");
-const RolesStore = require("../store/roles");
+const { handlerError, boomHandlerError } = require("../middlewares/handler");
 
 const store = new RolesStore();
 const service = new RoleServices(store);
@@ -14,8 +16,12 @@ const router = express.Router();
  * @param res Response object for the GET /roles/:roleId endpoint
  */
 router.get("/:roleId", validateRoleId, async function (req, res) {
-  let role = await service.getRole(req.params.roleId);
-  res.json(role);
+  try {
+    let role = await service.getRole(req.params.roleId);
+    res.json(role);
+  } catch (e) {
+    boomHandlerError(e, res, handlerError);
+  }
 });
 
 /**
@@ -24,8 +30,12 @@ router.get("/:roleId", validateRoleId, async function (req, res) {
  * @param res Response object for the GET /roles endpoint
  */
 router.get("/", async function (req, res) {
-  let roles = await service.getRoles();
-  res.json(roles);
+  try {
+    let roles = await service.getRoles();
+    res.json(roles);
+  } catch (e) {
+    boomHandlerError(e, res, handlerError);
+  }
 });
 
 /**
@@ -34,8 +44,12 @@ router.get("/", async function (req, res) {
  * @param res Response object for the POST /roles endpoint
  */
 router.post("/", validateRole, async function (req, res) {
-  const roleAdd = await service.postRoles(req.body);
-  res.json(roleAdd);
+  try {
+    const roleAdd = await service.postRoles(req.body);
+    res.json(roleAdd);
+  } catch (e) {
+    boomHandlerError(e, res, handlerError);
+  }
 });
 
 module.exports = router;

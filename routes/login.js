@@ -1,7 +1,9 @@
 const express = require("express");
-const LoginServices = require("../services/login");
+
 const UserStore = require("../store/users");
+const LoginServices = require("../services/login");
 const checkLogin = require("../middlewares/login");
+const { handlerError, boomHandlerError } = require("../middlewares/handler");
 
 const store = new UserStore();
 const service = new LoginServices(store);
@@ -14,8 +16,12 @@ const router = express.Router();
  * @param res Response object for the POST /login endpoint
  */
 router.post("/", checkLogin, function (req, res) {
-  const token = service.login(req.body.name, req.body.password);
-  res.json(token);
+  try {
+    const token = service.login(req.body.name, req.body.password);
+    res.json(token);
+  } catch (e) {
+    boomHandlerError(e, res, handlerError);
+  }
 });
 
 /**
@@ -24,8 +30,12 @@ router.post("/", checkLogin, function (req, res) {
  * @param res Response object for the POST /login/validate endpoint
  */
 router.post("/validate", function (req, res) {
-  const dataToken = service.validateToken(req.headers.authorization);
-  res.json(dataToken);
+  try {
+    const dataToken = service.validateToken(req.headers.authorization);
+    res.json(dataToken);
+  } catch (e) {
+    boomHandlerError(e, res, handlerError);
+  }
 });
 
 module.exports = router;

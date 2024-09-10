@@ -83,17 +83,11 @@ class UserServices {
     const user = await this.storage.getUserByName(userName);
 
     if (!user) {
-      res
-        .status(404)
-        .json({ error: 'Could not find user with provided "userId"' });
-      return;
+      throw boom.notFound('Could not find user with provided "name"');
     }
-    try {
-      await this.storage.addRole(user.name, roleId);
-      res.status(200).json("user updated successfully!");
-    } catch (error) {
-      res.status(500).json({ error: "Could not add role" });
-    }
+
+    await this.storage.addRole(user.name, roleId);
+    return "Role added";
   }
 }
 
