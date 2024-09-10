@@ -82,15 +82,15 @@ class UsersStore {
 
     /**
      * Function to add a role to the user in the database DynamoDB
-     * @param {String} userId Identifier for the user to retrieve
+     * @param {String} userName Identifier name for the user to retrieve
      * @param {String} roleId Identifier for the role to add
      */
-    async addRole(userId, roleId) {
+    async addRole(userName, roleId) {
 
         const params = {
             TableName: USERS_TABLE,
             Key: {
-                userId: userId,
+                name: userName,
             },
             UpdateExpression: "SET #userRoles = list_append(#userRoles, :roleId)",
             ExpressionAttributeValues: {
