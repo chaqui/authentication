@@ -91,12 +91,14 @@ class UserServices {
 
   /**
    * Function to add roles to a user
-   * @param {String} userId  userId to add role
+   * @param {String} userName  userName to add role
    * @param {String} roleId  roleId to add role
-   * @param {Response} res  Response object for the POST /users/:userId/roles endpoint
+   * @param {Response} res  Response object for the POST /users/:userName/roles endpoint
    */
-  async addRoles(userId, roleId, res) {
-    const user = await this.storage.getUserById(userId);
+  async addRoles(userName, roleId, res) {
+    // user is used for ensure its existence
+    const user = await this.storage.getUserByName(userName);
+
     if (!user) {
       res
         .status(404)
@@ -104,7 +106,8 @@ class UserServices {
       return;
     }
     try {
-      await this.storage.addRole(userId, roleId);
+      await this.storage.addRole(user.name, roleId);
+      res.status(200).json("user updated successfully!");
     } catch (error) {
       res.status(500).json({ error: "Could not add role" });
     }
