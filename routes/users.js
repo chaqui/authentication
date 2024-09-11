@@ -1,4 +1,5 @@
 const express = require("express");
+const UserDto = require("../dto/user");
 
 const { handlerError, boomHandlerError } = require("../middlewares/handler");
 const {

@@ -104,7 +104,7 @@ class UsersStore {
     }
 
     /**
-     * TODO; No funciona correctamente
+     * TODO: No funciona correctamente
      * Function to get the user for name from the database DynamoDB
      * @param {String} name Name of the user
      * @returns 
