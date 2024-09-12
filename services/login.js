@@ -6,6 +6,7 @@ const SECRET_KET = process.env.SECRET_KET;
 class LoginServices {
   constructor(storageUser) {
     this.storageUser = storageUser;
+    this.secret_key = process.env.SECRET_KET || "mysecret";
   }
 
   /**
@@ -17,15 +18,20 @@ class LoginServices {
    * @returns
    */
   async login(name, password) {
+    // Get user by name
     const user = await this.storageUser.getUserByName(name);
+
     if (!user) {
-      throw boom.notFound('Could not find user with provided "name"');
+      throw boom.unauthorized("Invalid username or password");
     }
 
+    // Compare password
     const passwordMatch = await bcrypt.compare(password, user.password);
-    if (passwordMatch) {
-      return { token: this.generateToken(user) };
+
+    if (!passwordMatch) {
+      throw boom.unauthorized("Invalid username or password");
     }
+    return { token: this.generateToken(user) };
   }
 
   /**
@@ -35,7 +41,8 @@ class LoginServices {
    */
   generateToken(user) {
     let { name, userRoles } = user;
-    const token = jwt.sign({ name, userRoles }, SECRET_KET, {
+
+    const token = jwt.sign({ name, userRoles }, this.secret_key, {
       expiresIn: "1h",
     });
     return token;
@@ -48,11 +55,13 @@ class LoginServices {
    */
   async validateToken(token) {
     token = token.split(" ")[1];
+
     try {
-      const user = jwt.verify(token, SECRET_KET);
+      const user = jwt.verify(token, this.secret_key);
       let { name, userRoles } = user;
       return { name, userRoles };
     } catch (error) {
+      console.error(error);
       throw boom.unauthorized("Invalid token");
     }
   }

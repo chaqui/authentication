@@ -78,13 +78,9 @@ class UserServices {
    * @param {String} roleId  roleId to add role
    * @param {Response} res  Response object for the POST /users/:userName/roles endpoint
    */
-  async addRoles(userName, roleId, res) {
+  async addRoles(userName, roleId) {
     // user is used for ensure its existence
-    const user = await this.storage.getUserByName(userName);
-
-    if (!user) {
-      throw boom.notFound('Could not find user with provided "name"');
-    }
+    const user = await this.getUserByName(userName);
 
     await this.storage.addRole(user.name, roleId);
     return "Role added";
