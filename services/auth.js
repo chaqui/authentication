@@ -75,7 +75,8 @@ class LoginServices {
       const user = await this.storageUser.getUserByName(name);
       const index = user.tokens.findIndex((t) => t === token);
       await this.storageUser.removeToken(user.name, index);
-      res.status(200);
+
+      res.status(200).json("Logout sucessful!");
     } catch (error) {
       res.status(401).json({ error: "Unauthorized" });
     }
