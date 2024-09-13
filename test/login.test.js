@@ -5,8 +5,10 @@ const LoginServices = require("../services/login");
  * Test suite for Login Services class in services/login.js file in happy path
  */
 describe("Login Services in happy path", () => {
-  let store = new UserStoreHappyPath();
-  const loginServices = new LoginServices(store);
+  let loginServices;
+  beforeAll(async () => {
+    loginServices = new LoginServices(new UserStoreHappyPath());
+  });
   test("should call login", async () => {
     const token = await loginServices.login("test", "test");
     expect(token).not.toBeNull();
@@ -24,8 +26,10 @@ describe("Login Services in happy path", () => {
  * Test suite for Login Services class in services/login.js file in sad path
  */
 describe("Login Services in sad path", () => {
-  let store = new USerStoreSadPath();
-  const loginServices = new LoginServices(store);
+  let loginServices;
+  beforeAll(async () => {
+    loginServices = new LoginServices(new USerStoreSadPath());
+  });
   test("should call login", async () => {
     const r = expect(() => loginServices.login("sss", "test")).rejects;
     r.toThrow();
