@@ -21,6 +21,14 @@ This template configures a single function, `api`, which is responsible for hand
 
 ## Usage
 
+### Node version
+
+To deploy the project you must first have nvm installed and execute next command
+
+```
+nvm use
+```
+
 ### Deployment
 
 Install dependencies with:
