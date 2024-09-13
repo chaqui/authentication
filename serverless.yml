@@ -25,7 +25,7 @@ provider:
   environment:
     USERS_TABLE: ${self:custom.tableNameUsers}
     ROLES_TABLE: ${self:custom.tableNameRoles}
-    SECRET_KET:
+    SECRET_KEY: ${env.SECRET_KEY}
 
 functions:
   api:

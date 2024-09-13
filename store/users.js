@@ -22,6 +22,7 @@ class UsersStore {
                 name: name,
                 password: password,
                 userRoles: [],
+                tokens: []
             },
         };
 
@@ -124,7 +125,42 @@ class UsersStore {
         return response.Items;
     };
 
+    /**
+     * Save auth token for an user
+     * @param {String} name Identifier for the user to retrieve
+     * @param {String} token Token to be added
+     */
+    async saveToken(name, token) {
+        const params = {
+            TableName: USERS_TABLE,
+            Key: {
+                name,
+            },
+            UpdateExpression: "SET #tokens = list_append(#tokens, :token)",
+            ExpressionAttributeValues: {
+                ":token": [token],
+            },
+            ExpressionAttributeNames: {
+                "#tokens": "tokens"
+            }
+        };
+        await dynamoDb.update(params).promise();
+    }
 
+    /**
+     * Remove auth token for an user
+     * @param {String} name Identifier for the user to retrieve
+     * @param {String} token Token to be removed
+     */
+    async removeToken(name, index) {
+        await dynamoDb.update({
+            TableName: USERS_TABLE,
+            Key: {
+                name,
+            },
+            UpdateExpression: `REMOVE tokens[${index}]`
+        }).promise();
+    }
 }
 
 
