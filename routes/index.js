@@ -2,13 +2,13 @@ const express = require("express");
 
 const users = require("./users");
 const roles = require("./roles");
-const login = require("./login");
+const auth = require("./auth");
 
 function routerApiV1(app) {
   const router = express.Router();
   router.use("/users", users);
   router.use("/roles", roles);
-  router.use("/login", login);
+  router.use("/auth", login);
   app.use("/api/v1", router);
 }
 

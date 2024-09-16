@@ -1,7 +1,6 @@
 const express = require("express");
-
+const LoginServices = require("../services/auth");
 const UserStore = require("../store/users");
-const LoginServices = require("../services/login");
 const checkLogin = require("../middlewares/login");
 const { handlerError, boomHandlerError } = require("../middlewares/handler");
 
@@ -36,6 +35,9 @@ router.post("/validate", function (req, res) {
   } catch (e) {
     boomHandlerError(e, res, handlerError);
   }
+});
+router.post("/logout", function (req, res) {
+  service.removeToken(req.headers.authorization, res);
 });
 
 module.exports = router;

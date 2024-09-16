@@ -2,11 +2,11 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const boom = require("@hapi/boom");
 
-const SECRET_KET = process.env.SECRET_KET;
+const SECRET_KEY = process.env.SECRET_KEY;
 class LoginServices {
   constructor(storageUser) {
     this.storageUser = storageUser;
-    this.secret_key = process.env.SECRET_KET || "mysecret";
+    this.secret_key = this.SECRET_KEY || "mysecret";
   }
 
   /**
@@ -49,7 +49,7 @@ class LoginServices {
   }
 
   /**
-   * Function for validate a token
+   * Function for token validation
    * @param {String} token Token to validate
    * @param {Object} res Object response
    */
@@ -63,6 +63,25 @@ class LoginServices {
     } catch (error) {
       console.error(error);
       throw boom.unauthorized("Invalid token");
+    }
+  }
+
+  /**
+   * Delete token used after logout
+   * @param {String} token Token to validate
+   * @param {Object} res Object response
+   */
+  async removeToken(token, res) {
+    try {
+      token = token.split(" ")[1];
+      const { name } = jwt.verify(token, this.secret_key);
+      const user = await this.storageUser.getUserByName(name);
+      const index = user.tokens.findIndex((t) => t === token);
+      await this.storageUser.removeToken(user.name, index);
+
+      res.status(200).json("Logout sucessful!");
+    } catch (error) {
+      res.status(401).json({ error: "Unauthorized" });
     }
   }
 }
