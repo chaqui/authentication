@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const boom = require("@hapi/boom");
 
 const SECRET_KEY = process.env.SECRET_KEY;
-class LoginServices {
+class AuthServices {
   constructor(storageUser) {
     this.storageUser = storageUser;
     this.secret_key = this.SECRET_KEY || "mysecret";
@@ -31,7 +31,10 @@ class LoginServices {
     if (!passwordMatch) {
       throw boom.unauthorized("Invalid username or password");
     }
-    return { token: this.generateToken(user) };
+
+    const token = this.generateToken(user);
+    this.storageUser.saveToken(name, token);
+    return { token: token };
   }
 
   /**
@@ -55,13 +58,13 @@ class LoginServices {
    */
   async validateToken(token) {
     token = token.split(" ")[1];
-
     try {
-      const user = jwt.verify(token, this.secret_key);
-      let { name, userRoles } = user;
+      const { name } = jwt.verify(token, this.secret_key);
+      const user = await this.storageUser.getUserByName(name);
+      const index = this.getIndexToken(user, token);
+      let { userRoles } = user;
       return { name, userRoles };
     } catch (error) {
-      console.error(error);
       throw boom.unauthorized("Invalid token");
     }
   }
@@ -71,18 +74,27 @@ class LoginServices {
    * @param {String} token Token to validate
    * @param {Object} res Object response
    */
-  async removeToken(token, res) {
-    try {
-      token = token.split(" ")[1];
-      const { name } = jwt.verify(token, this.secret_key);
-      const user = await this.storageUser.getUserByName(name);
-      const index = user.tokens.findIndex((t) => t === token);
-      await this.storageUser.removeToken(user.name, index);
+  async removeToken(token) {
+    token = token.split(" ")[1];
+    const { name } = jwt.verify(token, this.secret_key);
+    const user = await this.storageUser.getUserByName(name);
+    const index = this.getIndexToken(user, token);
+    await this.storageUser.removeToken(user.name, index);
+    return "Logout sucessful!";
+  }
 
-      res.status(200).json("Logout sucessful!");
-    } catch (error) {
-      res.status(401).json({ error: "Unauthorized" });
+  /**
+   * Function for get the index of the token
+   * @param {Object} user information of the user
+   * @param {*} token
+   * @returns
+   */
+  getIndexToken(user, token) {
+    const index = user.tokens.findIndex((t) => t === token);
+    if (index < 0) {
+      throw Error("Invalid token");
     }
+    return index;
   }
 }
-module.exports = LoginServices;
+module.exports = AuthServices;

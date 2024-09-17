@@ -1,20 +1,20 @@
 const express = require("express");
-const LoginServices = require("../services/auth");
+const AuthServices = require("../services/auth");
 const UserStore = require("../store/users");
 const checkLogin = require("../middlewares/login");
 const { handlerError, boomHandlerError } = require("../middlewares/handler");
 
 const store = new UserStore();
-const service = new LoginServices(store);
+const service = new AuthServices(store);
 
 const router = express.Router();
 
 /**
  * Function to login
- * @param req Request object for the POST /login endpoint
- * @param res Response object for the POST /login endpoint
+ * @param req Request object for the POST /auth/login endpoint
+ * @param res Response object for the POST /auth/login endpoint
  */
-router.post("/", checkLogin, function (req, res) {
+router.post("/login", checkLogin, function (req, res) {
   try {
     const token = service.login(req.body.name, req.body.password);
     res.json(token);
@@ -25,8 +25,8 @@ router.post("/", checkLogin, function (req, res) {
 
 /**
  * Function to validate token
- * @param req Request object for the POST /login/validate endpoint
- * @param res Response object for the POST /login/validate endpoint
+ * @param req Request object for the POST /auth/validate endpoint
+ * @param res Response object for the POST /auth/validate endpoint
  */
 router.post("/validate", function (req, res) {
   try {
@@ -36,8 +36,18 @@ router.post("/validate", function (req, res) {
     boomHandlerError(e, res, handlerError);
   }
 });
+
+/**
+ * Function to logout
+ * @param req Request object for the POST /auth/logout endpoint
+ * @param req Response object for the POST /auth/logout endpoint
+ */
 router.post("/logout", function (req, res) {
-  service.removeToken(req.headers.authorization, res);
+  try {
+    service.removeToken(req.headers.authorization);
+  } catch (e) {
+    boomHandlerError(e, res, handlerError);
+  }
 });
 
 module.exports = router;

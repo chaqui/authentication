@@ -8,7 +8,7 @@ function routerApiV1(app) {
   const router = express.Router();
   router.use("/users", users);
   router.use("/roles", roles);
-  router.use("/auth", login);
+  router.use("/auth", auth);
   app.use("/api/v1", router);
 }
 
