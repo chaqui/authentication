@@ -6,7 +6,7 @@ const SECRET_KEY = process.env.SECRET_KEY;
 class AuthServices {
   constructor(storageUser) {
     this.storageUser = storageUser;
-    this.secret_key = this.SECRET_KEY || "mysecret";
+    this.secret_key = SECRET_KEY || "mysecret";
   }
 
   /**
@@ -33,7 +33,7 @@ class AuthServices {
     }
 
     const token = this.generateToken(user);
-    this.storageUser.saveToken(name, token);
+    await this.storageUser.saveToken(name, token);
     return { token: token };
   }
 

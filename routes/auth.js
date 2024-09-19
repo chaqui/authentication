@@ -14,9 +14,9 @@ const router = express.Router();
  * @param req Request object for the POST /auth/login endpoint
  * @param res Response object for the POST /auth/login endpoint
  */
-router.post("/login", checkLogin, function (req, res) {
+router.post("/login", checkLogin, async function (req, res) {
   try {
-    const token = service.login(req.body.name, req.body.password);
+    const token = await service.login(req.body.name, req.body.password);
     res.json(token);
   } catch (e) {
     boomHandlerError(e, res, handlerError);
@@ -28,9 +28,9 @@ router.post("/login", checkLogin, function (req, res) {
  * @param req Request object for the POST /auth/validate endpoint
  * @param res Response object for the POST /auth/validate endpoint
  */
-router.post("/validate", function (req, res) {
+router.post("/validate", async function (req, res) {
   try {
-    const dataToken = service.validateToken(req.headers.authorization);
+    const dataToken = await service.validateToken(req.headers.authorization);
     res.json(dataToken);
   } catch (e) {
     boomHandlerError(e, res, handlerError);
@@ -42,9 +42,9 @@ router.post("/validate", function (req, res) {
  * @param req Request object for the POST /auth/logout endpoint
  * @param req Response object for the POST /auth/logout endpoint
  */
-router.post("/logout", function (req, res) {
+router.post("/logout", async function (req, res) {
   try {
-    service.removeToken(req.headers.authorization);
+    await service.removeToken(req.headers.authorization);
   } catch (e) {
     boomHandlerError(e, res, handlerError);
   }
