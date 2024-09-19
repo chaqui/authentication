@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-
+const boom = require("@hapi/boom");
 class UserServices {
   constructor(storage) {
     this.storage = storage;
@@ -11,15 +11,9 @@ class UserServices {
    * @param res Response object for the GET /users endpoint
    *
    */
-  async getUsers(res) {
-    try {
-      const users = await this.storage.getUsers();
-      res.json(users);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ error: "Could not return users", message: error.message });
-    }
+  async getUsers() {
+    let users = await this.storage.getUsers();
+    return users;
   }
 
   /**
@@ -28,23 +22,18 @@ class UserServices {
    * @param res Response object for the POST /users endpoint
    *
    */
-  async postUsers(body, res) {
+  async postUsers(body) {
     const { name, password } = body;
 
-    try {
-      const passwordEncrypted = await bcrypt.hash(password, 10);
-      const userId = crypto.randomBytes(20).toString("hex");
-      const newUser = {
-        userId: userId,
-        name: name,
-        password: passwordEncrypted,
-      };
-      const userAdd = await this.storage.addUser(newUser);
-
-      res.json(userAdd);
-    } catch (error) {
-      res.status(500).json({ error: "Could not create user" });
-    }
+    const passwordEncrypted = await bcrypt.hash(password, 10);
+    const userId = crypto.randomBytes(20).toString("hex");
+    const newUser = {
+      userId: userId,
+      name: name,
+      password: passwordEncrypted,
+    };
+    const userAdd = await this.storage.addUser(newUser);
+    return userAdd;
   }
 
   /**
@@ -73,20 +62,14 @@ class UserServices {
    * @param {String} name  userId to return
    * @param {Response} res  response object for the GET /users/:userId endpoint
    */
-  async getUserByName(name, res) {
-    try {
-      const user = await this.storage.getUserByName(name);
-      if (user) {
-        const { userId, name, userRoles } = user;
-        res.json({ userId, name, userRoles });
-      } else {
-        res
-          .status(404)
-          .json({ error: 'Could not find user with provided "name"' });
-      }
-    } catch (error) {
-      res.status(500).json({ error: "Could not return user" });
+  async getUserByName(name) {
+    const user = await this.storage.getUserByName(name);
+
+    if (user) {
+      const { userId, name, userRoles } = user;
+      return { userId, name, userRoles };
     }
+    throw boom.notFound('Could not find user with provided "name"');
   }
 
   /**
@@ -95,22 +78,12 @@ class UserServices {
    * @param {String} roleId  roleId to add role
    * @param {Response} res  Response object for the POST /users/:userName/roles endpoint
    */
-  async addRoles(userName, roleId, res) {
+  async addRoles(userName, roleId) {
     // user is used for ensure its existence
-    const user = await this.storage.getUserByName(userName);
+    const user = await this.getUserByName(userName);
 
-    if (!user) {
-      res
-        .status(404)
-        .json({ error: 'Could not find user with provided "userId"' });
-      return;
-    }
-    try {
-      await this.storage.addRole(user.name, roleId);
-      res.status(200).json("user updated successfully!");
-    } catch (error) {
-      res.status(500).json({ error: "Could not add role" });
-    }
+    await this.storage.addRole(user.name, roleId);
+    return "Role added";
   }
 }
 
