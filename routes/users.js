@@ -65,7 +65,7 @@ router.post("/", checkUserData, async function (req, res) {
  */
 router.post("/:name/roles/", checkAddRole, async function (req, res) {
   try {
-    let message = service.addRoles(req.params.name, req.body.roleId);
+    let message = await service.addRoles(req.params.name, req.body.roleId);
     res.json(message);
   } catch (e) {
     boomHandlerError(e, res, handlerError);

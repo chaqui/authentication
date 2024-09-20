@@ -44,7 +44,8 @@ router.post("/validate", async function (req, res) {
  */
 router.post("/logout", async function (req, res) {
   try {
-    await service.removeToken(req.headers.authorization);
+    const message = await service.removeToken(req.headers.authorization);
+    res.json(message);
   } catch (e) {
     boomHandlerError(e, res, handlerError);
   }
